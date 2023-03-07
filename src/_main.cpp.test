@@ -36,7 +36,7 @@ void print_device(const cl::sycl::device &device) {
 }
 
 
-void test(cl::sycl::queue deviceQueue, const size_t N) {
+void test(synergy::queuedeviceQueue, const size_t N) {
 
 
 	std::vector<double> data(N);
@@ -90,7 +90,7 @@ void test(cl::sycl::queue deviceQueue, const size_t N) {
 int main() {
 	int start = 14745600;
 	int range = 10;
-	cl::sycl::queue deviceQueue;
+	synergy::queuedeviceQueue;
 
 	print_device(deviceQueue.get_device());
 

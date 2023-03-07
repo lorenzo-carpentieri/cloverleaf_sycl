@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main() {
-  cl::sycl::queue q;
+  synergy::queueq;
 
   q.submit([&](cl::sycl::handler& cgh) {
     cl::sycl::stream ostream(1024, 64, cgh);

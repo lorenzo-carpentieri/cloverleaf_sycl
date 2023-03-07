@@ -31,7 +31,7 @@ if (SYCL_RUNTIME)
     elseif (${SYCL_RUNTIME} STREQUAL "DPCPP")
 
         set(CMAKE_CXX_STANDARD 17)
-        set(CMAKE_CXX_COMPILER "dpcpp")
+        set(CMAKE_CXX_COMPILER "/root/dpcpp-2022-09/install-dpcpp-2022-09/bin/clang++")
         set(EXTRA_FLAGS -pedantic)
     else ()
         message(FATAL_ERROR "SYCL_RUNTIME unsupported, must be one of HIPSYCL|COMPUTECPP|DPCPP, got ${SYCL_RUNTIME}")
@@ -96,10 +96,14 @@ set(SOURCES
         src/update_tile_halo.cpp
         src/update_tile_halo_kernel.cpp
         src/viscosity.cpp
-        src/visit.cpp)
+        src/visit.cpp
+        # src/prova.cpp
+        )
 
 include_directories(src)
 add_executable(clover_leaf ${SOURCES})
+target_compile_definitions(clover_leaf PUBLIC __ENABLED_SYNERGY)
+target_link_libraries(clover_leaf PUBLIC synergy)
 
 target_compile_options(clover_leaf
         PUBLIC
@@ -131,4 +135,7 @@ if (NOT ${SYCL_RUNTIME} STREQUAL "DPCPP")
             TARGET clover_leaf
             SOURCES ${SOURCES}) # must be the last
 endif ()
+
+
+add_subdirectory(SYnergy)
 

@@ -20,7 +20,7 @@
 #ifndef CLOVERLEAF_SYCL_SYCL_UTILS_HPP
 #define CLOVERLEAF_SYCL_SYCL_UTILS_HPP
 
-#include <CL/sycl.hpp>
+#include <synergy.hpp>
 #include <iostream>
 #include <utility>
 
@@ -156,7 +156,7 @@ namespace clover {
 
 	// delegates to queue.submit(cgf), handles blocking submission if enable
 	template<typename T>
-	static void execute(cl::sycl::queue &queue, T cgf) {
+	static void execute(synergy::queue&queue, T cgf) {
 		try {
 			queue.submit(cgf);
 #if defined(SYCL_DEBUG) || defined(SYNC_KERNELS)

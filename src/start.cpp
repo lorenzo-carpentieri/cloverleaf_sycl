@@ -78,7 +78,7 @@ std::unique_ptr<global_variables> start(parallel_ &parallel,
 
 
 	global_variables globals(config,
-	                         cl::sycl::queue(device, handler, {}),
+	                         synergy::queue(device, handler),
 	                         chunk_type(
 			                         chunkNeighbours,
 			                         parallel.task, 1, 1, x_cells, y_cells,

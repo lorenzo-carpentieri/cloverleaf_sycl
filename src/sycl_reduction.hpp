@@ -59,7 +59,7 @@ namespace clover {
 			class Finaliser= std::nullptr_t,
 			class RangeLengthFn = std::nullptr_t,
 			class RangeIdFn = std::nullptr_t>
-	static inline void par_reduce_nd_impl(cl::sycl::queue &q,
+	static inline void par_reduce_nd_impl(synergy::queue&q,
 	                                      RangeTpe range, RangeLengthFn lengthFn, RangeIdFn rangeIdFn,
 	                                      LocalAllocator allocator,
 	                                      Empty empty,
@@ -149,7 +149,7 @@ namespace clover {
 			class Functor = std::nullptr_t,
 			class BinaryOp = std::nullptr_t,
 			class Finaliser = std::nullptr_t>
-	static inline void par_reduce_2d(cl::sycl::queue &q, const clover::Range2d &range,
+	static inline void par_reduce_2d(synergy::queue&q, const clover::Range2d &range,
 	                                 LocalAllocator allocator,
 	                                 Empty empty,
 	                                 Functor functor,
@@ -189,7 +189,7 @@ namespace clover {
 			class Functor = std::nullptr_t,
 			class BinaryOp = std::nullptr_t,
 			class Finaliser = std::nullptr_t>
-	static inline void par_reduce_1d(cl::sycl::queue &q, const clover::Range1d &range,
+	static inline void par_reduce_1d(synergy::queue&q, const clover::Range1d &range,
 	                                 LocalAllocator allocator,
 	                                 Empty empty,
 	                                 Functor functor,

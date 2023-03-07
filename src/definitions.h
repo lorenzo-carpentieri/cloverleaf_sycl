@@ -48,7 +48,7 @@
 using namespace cl;
 
 using sycl::accessor;
-using sycl::queue;
+using synergy::queue;
 using sycl::buffer;
 using sycl::range;
 using sycl::handler;
@@ -385,8 +385,7 @@ struct global_config {
 struct global_variables {
 
 	const global_config config;
-
-	cl::sycl::queue queue;
+	synergy::queue queue;
 	chunk_type chunk;
 
 	int error_condition;
@@ -410,7 +409,7 @@ struct global_variables {
 
 	explicit global_variables(
 			const global_config &config,
-			cl::sycl::queue queue,
+			synergy::queue queue,
 			chunk_type chunk) :
 			config(config), queue(std::move(queue)), chunk(std::move(chunk)),
 			dt(config.dtinit),
