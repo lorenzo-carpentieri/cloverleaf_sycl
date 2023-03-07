@@ -25,7 +25,7 @@
 #include <utility>
 
 //#define SYCL_DEBUG // enable for debugging SYCL related things, also syncs kernel calls
-//#define SYNC_KERNELS // enable for fully synchronous (e.g queue.wait_and_throw()) kernel calls
+// #define SYNC_KERNELS // enable for fully synchronous (e.g queue.wait_and_throw()) kernel calls
 //#define SYCL_FLIP_2D // enable for flipped id<2> indices from SYCL default
 
 // this namespace houses all SYCL related abstractions
@@ -158,7 +158,10 @@ namespace clover {
 	template<typename T>
 	static void execute(synergy::queue&queue, T cgf) {
 		try {
-			queue.submit(cgf);
+			sycl::event e = queue.submit(cgf);
+  			std::cout << "Energy consumption: " << queue.kernel_energy_consumption(e) << " j\n";
+
+			
 #if defined(SYCL_DEBUG) || defined(SYNC_KERNELS)
 			queue.wait_and_throw();
 #endif
