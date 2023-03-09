@@ -61,7 +61,7 @@ void flux_calc(global_variables &globals) {
 	double kernel_time = 0;
 	if (globals.profiler_on) kernel_time = timer();
 
-	clover::execute(globals.queue, [&](handler &h) {
+	clover::execute(globals.queue, "flux_calc_1",[&](handler &h) {
 
 
 		for (int tile = 0; tile < globals.config.tiles_per_chunk; ++tile) {

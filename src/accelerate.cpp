@@ -95,7 +95,7 @@ void accelerate(global_variables &globals) {
 		tile_type &t = globals.chunk.tiles[tile];
 
 
-		clover::execute(globals.queue, [&](handler &h) {
+		clover::execute(globals.queue, "accelerate", [&](handler &h) {
 			accelerate_kernel(
 					h,
 					t.info.t_xmin,

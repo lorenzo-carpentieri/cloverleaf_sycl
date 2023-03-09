@@ -23,6 +23,8 @@
 #include <synergy.hpp>
 #include <iostream>
 #include <utility>
+#include <mpi.h>
+
 
 //#define SYCL_DEBUG // enable for debugging SYCL related things, also syncs kernel calls
 // #define SYNC_KERNELS // enable for fully synchronous (e.g queue.wait_and_throw()) kernel calls
@@ -156,11 +158,14 @@ namespace clover {
 
 	// delegates to queue.submit(cgf), handles blocking submission if enable
 	template<typename T>
-	static void execute(synergy::queue&queue, T cgf) {
+	static void execute(synergy::queue&queue, std::string kernel_name, T cgf) {
 		try {
 			sycl::event e = queue.submit(cgf);
-  			std::cout << "Energy consumption: " << queue.kernel_energy_consumption(e) << " j\n";
-
+			// Take the mpi process rank
+			int world_rank;
+    		MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+  			std::cout << "kernel_name: " << kernel_name << ", rank: "<< world_rank << ", energy_consumption [J]: " << queue.kernel_energy_consumption(e) << "\n";
+  			// std::cout << "kernel_name: " << kernel_name << ", rank: "<< world_rank << "\n";
 			
 #if defined(SYCL_DEBUG) || defined(SYNC_KERNELS)
 			queue.wait_and_throw();
