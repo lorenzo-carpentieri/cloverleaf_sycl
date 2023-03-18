@@ -109,7 +109,16 @@ RunConfig parseArgs(const std::vector<cl::sycl::device> &devices,
 		}
 	};
 
-	auto config = RunConfig{ "clover.in",devices[0]};
+	int comm_rank = -1;
+    MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
+
+    MPI_Comm local_comm;
+    MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, comm_rank, MPI_INFO_NULL, &local_comm);
+
+    int local_comm_rank = -1;
+    MPI_Comm_rank(local_comm, &local_comm_rank);
+	// works on Marconi100 
+	auto config = RunConfig{ "clover.in",devices[local_comm_rank]};
 	for (size_t i = 0; i < args.size(); ++i) {
 		const auto arg = args[i];
 
@@ -188,22 +197,11 @@ initialise(parallel_ &parallel, const std::vector<std::string> &args) {
 	          << std::endl;
 
 	std::ifstream g_in;
-	if (parallel.boss) {
-		g_out << "Clover will run from the following input:-" << std::endl
-		      << std::endl;
-
-		if (!args.empty()) {
-			std::cout << "Args:";
-			for (const auto &arg : args) std::cout << " " << arg;
-			std::cout << std::endl;
-		}
-
-		g_in.open(file);
-		std::cout << "Using input: `" << file << "`" << std::endl;
-
-		if (!g_in.good()) {
+	g_in.open(file);
+	if(!g_in.good()){
+		g_in.close();
+		if(parallel.boss){
 			std::cerr << "Unable to open file: `" << file << "`, using defaults" << std::endl;
-			g_in.close();
 			std::ofstream out_unit("clover.in");
 			out_unit
 					<< "*clover" << std::endl
@@ -223,10 +221,11 @@ initialise(parallel_ &parallel, const std::vector<std::string> &args) {
 					<< " test_problem 1" << std::endl
 					<< "*endclover" << std::endl;
 			out_unit.close();
-			g_in.open("clover.in");
 		}
+		clover_barrier();
+		g_in.open("clover.in");
 	}
-
+	
 	clover_barrier();
 
 	if (parallel.boss) {
