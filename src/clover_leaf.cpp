@@ -81,6 +81,23 @@ int main(int argc, char *argv[]) {
 	// Finilise programming models
 //	Kokkos::finalize();
 	config->queue.wait_and_throw();
+	
+	int comm_rank = -1;
+    MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
+
+    MPI_Comm local_comm;
+    MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, comm_rank, MPI_INFO_NULL, &local_comm);
+
+    int local_comm_rank = -1;
+    MPI_Comm_rank(local_comm, &local_comm_rank);
+    char node_name[MPI_MAX_PROCESSOR_NAME];
+    int node_name_len = 0;
+    MPI_Get_processor_name(node_name, &node_name_len);
+
+    #ifdef SYNERGY_ENABLE_PROFILING 
+      auto &q = config->queue;
+      std::cout << "Node name: "<< node_name << ", rank: "<< comm_rank << ", local_rank: "<< local_comm_rank <<  ", device_energy_consumption [J]: "<< q.device_energy_consumption() << std::endl;
+    #endif
 	MPI_Finalize();
 
 	std::cout << "Done" << std::endl;
