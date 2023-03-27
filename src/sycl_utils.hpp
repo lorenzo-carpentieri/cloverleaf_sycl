@@ -164,8 +164,8 @@ namespace clover {
 			// Take the mpi process rank
 			int world_rank;
     		MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-  			std::cout << "kernel_name: " << kernel_name << ", rank: "<< world_rank << ", energy_consumption [J]: " << queue.kernel_energy_consumption(e) << "\n";
-  			// std::cout << "kernel_name: " << kernel_name << ", rank: "<< world_rank << "\n";
+			// Fine grained energy consumption
+  			// std::cout << "kernel_name: " << kernel_name << ", rank: "<< world_rank << ", energy_consumption [J]: " << queue.kernel_energy_consumption(e) << "\n";
 			
 #if defined(SYCL_DEBUG) || defined(SYNC_KERNELS)
 			queue.wait_and_throw();

@@ -93,10 +93,11 @@ int main(int argc, char *argv[]) {
     char node_name[MPI_MAX_PROCESSOR_NAME];
     int node_name_len = 0;
     MPI_Get_processor_name(node_name, &node_name_len);
-
+	
     #ifdef SYNERGY_ENABLE_PROFILING 
       auto &q = config->queue;
-      std::cout << "Node name: "<< node_name << ", rank: "<< comm_rank << ", local_rank: "<< local_comm_rank <<  ", device_energy_consumption [J]: "<< q.device_energy_consumption() << std::endl;
+			q.finish();
+	  	std::cout << "Node name: "<< node_name << ", rank: "<< comm_rank << ", local_rank: "<< local_comm_rank <<  ", device_energy_consumption [J]: "<< q.get_synergy_device().get_energy_consumption() << std::endl;
     #endif
 	MPI_Finalize();
 
