@@ -158,7 +158,7 @@ namespace clover {
 
 	// delegates to queue.submit(cgf), handles blocking submission if enable
 	template<typename T>
-	static void execute(synergy::queue&queue, std::string kernel_name, T cgf) {
+	static void execute(synergy::frequency memory_freq, synergy::frequency core_freq, synergy::queue&queue, std::string kernel_name, T cgf) {
 		try {
 			sycl::event e = queue.submit(cgf);
 			// Take the mpi process rank
