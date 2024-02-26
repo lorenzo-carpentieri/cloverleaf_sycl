@@ -5,6 +5,7 @@ project(cloverleaf_sycl)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CUDA_TOOLKIT_ROOT_DIR ${CUDA_TOOLKIT_DIR})
 
 if (SYCL_RUNTIME)
 
@@ -31,7 +32,7 @@ if (SYCL_RUNTIME)
     elseif (${SYCL_RUNTIME} STREQUAL "DPCPP")
 
         set(CMAKE_CXX_STANDARD 17)
-        set(CMAKE_CXX_COMPILER "/root/dpcpp-2022-09/install-dpcpp-2022-09/bin/clang++")
+        set(CMAKE_CXX_COMPILER ${CMAKE_CXX_COMPILER})
         set(EXTRA_FLAGS -pedantic)
     else ()
         message(FATAL_ERROR "SYCL_RUNTIME unsupported, must be one of HIPSYCL|COMPUTECPP|DPCPP, got ${SYCL_RUNTIME}")
