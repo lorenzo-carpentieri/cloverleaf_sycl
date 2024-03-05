@@ -182,13 +182,19 @@ initialise(parallel_ &parallel, const std::vector<std::string> &args) {
 		std::exit(EXIT_FAILURE);
 	}
 
-	auto runConfig = parseArgs(devices, args);
+	std::vector<sycl::device> gpu_devices;
+
+	for(size_t i = 0; i < devices.size(); i++){
+
+		if (devices[i].has(sycl::aspect::gpu))
+			gpu_devices.push_back(devices[i]);
+	}
+	auto runConfig = parseArgs(gpu_devices, args);
 	auto file = runConfig.file;
 	auto selectedDevice = runConfig.device;
 
 	std::cout << "Detected SYCL devices:" << std::endl;
-	for (size_t i = 0; i < devices.size(); ++i) printSimple(devices[i], i);
-
+	for (size_t i = 0; i < gpu_devices.size(); ++i) printSimple(gpu_devices[i], i);
 	std::cout << "Using SYCL device: "
 	          << selectedDevice.get_info<cl::sycl::info::device::name>()
 	          << "("
