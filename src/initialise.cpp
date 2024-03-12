@@ -186,7 +186,7 @@ initialise(parallel_ &parallel, const std::vector<std::string> &args) {
 
 	for(size_t i = 0; i < devices.size(); i++){
 
-		if (devices[i].has(sycl::aspect::gpu))
+		if (devices[i].has(sycl::aspect::gpu) && devices[i].get_platform().get_info<sycl::info::platform::name>().find("OpenCL") == std::string::npos)
 			gpu_devices.push_back(devices[i]);
 	}
 	auto runConfig = parseArgs(gpu_devices, args);
