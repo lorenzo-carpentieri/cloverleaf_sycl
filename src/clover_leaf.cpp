@@ -46,38 +46,14 @@
 #include "hydro.h"
 #include "initialise.h"
 #include "version.h"
-
+#include <chrono>
 // Output file handler
 std::ostream g_out(nullptr);
 
 int main(int argc, char* argv[]) {
   // Initialise MPI first
   MPI_Init(&argc, &argv);
-
-  // Initialise Kokkos
-  //	Kokkos::initialize();
-
-  // Initialise communications
-  struct parallel_ parallel;
-
-  if (parallel.boss) {
-    std::cout << std::endl
-              << "Clover Version " << g_version << std::endl
-              << "Kokkos Version" << std::endl
-              << "Task Count " << parallel.max_task << std::endl
-              << std::endl;
-  }
-
-  std::unique_ptr<global_variables> config =
-      initialise(parallel, std::vector<std::string>(argv + 1, argv + argc));
-
-  std::cout << "Launching hydro" << std::endl;
-  hydro(*config, parallel);
-
-  // Finilise programming models
-  //	Kokkos::finalize();
-  config->queue.wait_and_throw();
-
+  // Obtain info on nodes and process id
   int comm_rank = -1;
   MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
 
@@ -91,15 +67,58 @@ int main(int argc, char* argv[]) {
   int node_name_len = 0;
   MPI_Get_processor_name(node_name, &node_name_len);
 
+
+  // Initialise Kokkos
+  //	Kokkos::initialize();
+
+  // Initialise communications
+  struct parallel_ parallel;
+
+  if (parallel.boss) {
+	#ifdef CLOVER_LEAF_PRINT
+    std::cout << std::endl
+              << "Clover Version " << g_version << std::endl
+              << "Kokkos Version" << std::endl
+              << "Task Count " << parallel.max_task << std::endl
+              << std::endl;
+  #endif
+  }
+  auto start = std::chrono::high_resolution_clock::now();
+
+  std::unique_ptr<global_variables> config =
+      initialise(parallel, std::vector<std::string>(argv + 1, argv + argc));
+  auto end = std::chrono::high_resolution_clock::now();
+  auto initialise_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start); 
+  
+  
+  std::cerr << "Node name: " << node_name << ", rank: " << comm_rank
+            << ", local_rank: " << local_comm_rank << ", initialise_time [ms]: " << initialise_time.count() <<std::endl;
+  
+  // std::cout << "Launching hydro" << std::endl;
+  start = std::chrono::high_resolution_clock::now();
+  hydro(*config, parallel);
+  
+  // Finilise programming models
+  //	Kokkos::finalize();
+  config->queue.wait_and_throw();
+
+  end = std::chrono::high_resolution_clock::now();
+  auto hydro_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start); 
+  
+  std::cerr << "Node name: " << node_name << ", rank: " << comm_rank
+            << ", local_rank: " << local_comm_rank << ", hydro_time [ms]: " << hydro_time.count() <<std::endl;
+  if (parallel.boss)
+    printf("\n");
+  // clover_barrier();
+
 #ifdef SYNERGY_DEVICE_PROFILING
   auto& q = config->queue;
-  std::cout << "Node name: " << node_name << ", rank: " << comm_rank
+  std::cerr << "Node name: " << node_name << ", rank: " << comm_rank
             << ", local_rank: " << local_comm_rank
             << ", device_energy_consumption [J]: "
             << q.device_energy_consumption() << std::endl;
 #endif
   MPI_Finalize();
 
-  std::cout << "Done" << std::endl;
   return EXIT_SUCCESS;
 }

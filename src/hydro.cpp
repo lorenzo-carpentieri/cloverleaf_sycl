@@ -120,9 +120,11 @@ void hydro(global_variables &globals, parallel_ &parallel) {
 				      << "Clover is finishing" << std::endl
 				      << "Wall clock " << wall_clock << std::endl
 				      << "First step overhead " << first_step - second_step << std::endl;
+				#ifdef CLOVER_LEAF_PRINT
 				std::cout
 						<< "Wall clock " << wall_clock << std::endl
 						<< "First step overhead " << first_step - second_step << std::endl;
+				#endif
 			}
 
 			std::vector<double> totals(parallel.max_task);
@@ -227,6 +229,8 @@ void hydro(global_variables &globals, parallel_ &parallel) {
 
 
 		if (parallel.boss) {
+			#ifdef CLOVER_LEAF_PRINT
+
 			wall_clock = timer() - timerstart;
 			double step_clock = timer() - step_time;
 			g_out << "Wall clock " << wall_clock << std::endl;
@@ -235,10 +239,12 @@ void hydro(global_variables &globals, parallel_ &parallel) {
 			double rstep = globals.step;
 			double grind_time = wall_clock / (rstep * cells);
 			double step_grind = step_clock / cells;
+			
 			std::cout << "Average time per cell " << grind_time << std::endl;
 			g_out << "Average time per cell " << grind_time << std::endl;
 			std::cout << "Step time per cell    " << step_grind << std::endl;
 			g_out << "Step time per cell    " << step_grind << std::endl;
+			#endif
 		}
 
 	}

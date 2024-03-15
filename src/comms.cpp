@@ -45,25 +45,31 @@ extern std::ostream g_out;
 // Set up parallel structure
 parallel_::parallel_() {
   parallel = true;
-  std::cout << "parallel_contstructor" << std::endl;
   MPI_Comm_rank(MPI_COMM_WORLD, &task);
-  std::cout << "parallel_contstructor task-> " << task << std::endl;
 
   MPI_Comm_size(MPI_COMM_WORLD, &max_task);
-  std::cout << "parallel_contstructor max_task-> " << max_task << std::endl;
 
   boss = task == 0;
 }
 
 void clover_abort() {
+  #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Abort" << std::endl;
+  #endif
   MPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
 }
 
 void clover_barrier() {
+   #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Barrier" << std::endl;
+  #endif
   MPI_Barrier(MPI_COMM_WORLD);
 }
 
 void clover_barrier(global_variables& globals) {
+   #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Barrier" << std::endl;
+  #endif
   clover_barrier();
   globals.queue.wait_and_throw();
 }
@@ -330,28 +336,42 @@ void clover_allocate_buffers(global_variables& globals, parallel_& parallel) {
 }
 
 void clover_sum(double& value) {
+   #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Reduce" << std::endl;
+  #endif
   double total;
+  // TODO: same approach of All reduce (the sintax of IReduce is different you need to do a request)
   MPI_Reduce(&value, &total, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
   value = total;
+
 }
 
 void clover_min(double& value) {
+   #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Allreduces" << std::endl;
+  #endif
   double minimum = value;
-
+  //TODO: same approaches of Miniweather for MPI_Allreduce  
   MPI_Allreduce(&value, &minimum, 1, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
 
   value = minimum;
 }
 
 void clover_allgather(double value, std::vector<double>& values) {
+   #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Allgather" << std::endl;
+  #endif
   values[0] = value;  // Just to ensure it will work in serial
   MPI_Allgather(&value, 1, MPI_DOUBLE, values.data(), 1, MPI_DOUBLE,
                 MPI_COMM_WORLD);
 }
 
 void clover_check_error(int& error) {
+   #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Allreduce" << std::endl;
+  #endif
   int maximum = error;
-
+  //TODO: same approach of Miniweather for MPI_Allreduce
   MPI_Allreduce(&error, &maximum, 1, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
 
   error = maximum;
@@ -413,6 +433,10 @@ void clover_exchange(global_variables& globals, int fields[NUM_FIELDS],
 
   // make a call to wait / sync
   globals.queue.wait_and_throw();
+   #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Waitall" << std::endl;
+  #endif
+  //TODO: add frequency change
   MPI_Waitall(message_count, request, MPI_STATUS_IGNORE);
 
   // Copy back to the device
@@ -476,6 +500,9 @@ void clover_exchange(global_variables& globals, int fields[NUM_FIELDS],
   }
 
   // need to make a call to wait / sync
+   #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Waitall" << std::endl;
+  #endif
   globals.queue.wait_and_throw();
   MPI_Waitall(message_count, request, MPI_STATUS_IGNORE);
 
@@ -627,10 +654,16 @@ void clover_send_recv_message_left(global_variables& globals,
   //	Kokkos::deep_copy(globals.chunk.hm_left_snd_buffer, left_snd_buffer);
 
   int left_task = globals.chunk.chunk_neighbours[chunk_left] - 1;
-
+   #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Isend" << std::endl;
+  #endif
+  // TODO: 
   MPI_Isend(globals.chunk.left_snd_buffer.access<R>().get_pointer(), total_size,
             MPI_DOUBLE, left_task, tag_send, MPI_COMM_WORLD, &req_send);
 
+  #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Irecive" << std::endl;
+  #endif
   MPI_Irecv(const_cast<void*>(static_cast<const void*>(
                 globals.chunk.left_rcv_buffer.access<R>().get_pointer())),
             total_size, MPI_DOUBLE, left_task, tag_recv, MPI_COMM_WORLD,
@@ -873,11 +906,15 @@ void clover_send_recv_message_right(global_variables& globals,
   //	Kokkos::deep_copy(globals.chunk.hm_right_snd_buffer, right_snd_buffer);
 
   int right_task = globals.chunk.chunk_neighbours[chunk_right] - 1;
-
+  #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Isend" << std::endl;
+  #endif
   MPI_Isend(globals.chunk.right_snd_buffer.access<R>().get_pointer(),
             total_size, MPI_DOUBLE, right_task, tag_send, MPI_COMM_WORLD,
             &req_send);
-
+  #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Irecv" << std::endl;
+  #endif
   MPI_Irecv(const_cast<void*>(static_cast<const void*>(
                 globals.chunk.right_rcv_buffer.access<R>().get_pointer())),
             total_size, MPI_DOUBLE, right_task, tag_recv, MPI_COMM_WORLD,
@@ -1120,10 +1157,14 @@ void clover_send_recv_message_top(global_variables& globals,
   //	Kokkos::deep_copy(globals.chunk.hm_top_snd_buffer, top_snd_buffer);
 
   int top_task = globals.chunk.chunk_neighbours[chunk_top] - 1;
-
+  #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Isend" << std::endl;
+  #endif
   MPI_Isend(globals.chunk.top_snd_buffer.access<R>().get_pointer(), total_size,
             MPI_DOUBLE, top_task, tag_send, MPI_COMM_WORLD, &req_send);
-
+  #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Irecv" << std::endl;
+  #endif
   MPI_Irecv(const_cast<void*>(static_cast<const void*>(
                 globals.chunk.top_rcv_buffer.access<R>().get_pointer())),
             total_size, MPI_DOUBLE, top_task, tag_recv, MPI_COMM_WORLD,
@@ -1364,11 +1405,15 @@ void clover_send_recv_message_bottom(
   // bottom_snd_buffer);
 
   int bottom_task = globals.chunk.chunk_neighbours[chunk_bottom] - 1;
-
+  #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Isend" << std::endl;
+  #endif
   MPI_Isend(globals.chunk.bottom_snd_buffer.access<R>().get_pointer(),
             total_size, MPI_DOUBLE, bottom_task, tag_send, MPI_COMM_WORLD,
             &req_send);
-
+  #ifdef CLOVER_LEAF_STRUCTURE
+    std::cerr << "MPI_Irecv" << std::endl;
+  #endif
   MPI_Irecv(const_cast<void*>(static_cast<const void*>(
                 globals.chunk.bottom_rcv_buffer.access<R>().get_pointer())),
             total_size, MPI_DOUBLE, bottom_task, tag_recv, MPI_COMM_WORLD,

@@ -66,6 +66,7 @@ void printDetailed(const cl::sycl::device &device, size_t index) {
 
 	auto type = device.get_info<cl::sycl::info::device::device_type>();
 	cl::sycl::platform platform = device.get_platform();
+	#ifdef CLOVER_LEAF_PRINT
 	std::cout << " + Device        : " << device.get_info<cl::sycl::info::device::name>() << "\n";
 	std::cout << "   - Index      : " << index << "\n";
 	std::cout << "   - Type       : " << deviceName(type) << "\n";
@@ -75,17 +76,21 @@ void printDetailed(const cl::sycl::device &device, size_t index) {
 	std::cout << "      - Vendor  : " << platform.get_info<cl::sycl::info::platform::vendor>()<< "\n";
 	std::cout << "      - Version : " << platform.get_info<cl::sycl::info::platform::version>()<< "\n";
 	std::cout << "      - Profile : " << platform.get_info<cl::sycl::info::platform::profile>()<< "\n";
+	#endif
 }
 
 void printSimple(const cl::sycl::device &device, size_t index) {
+	#ifdef CLOVER_LEAF_PRINT
+
 	std::cout << std::setw(3) << index << ". "
 	          << device.get_info<cl::sycl::info::device::name>()
 	          << "(" << deviceName(device.get_info<cl::sycl::info::device::device_type>()) << ")"
 	          << std::endl;
+	#endif
 }
 
 void printHelp(const std::string &name) {
-	std::cout << std::endl;
+	// std::cout << std::endl;
 	std::cout << "Usage: " << name << " [OPTIONS]\n\n"
 	          << "Options:\n"
 	          << "  -h  --help               Print the message\n"
@@ -170,8 +175,9 @@ initialise(parallel_ &parallel, const std::vector<std::string> &args) {
 		      << "Kokkos Version" << std::endl
 		      << "Task Count " << parallel.max_task << std::endl
 		      << std::endl;
-
+		#ifdef CLOVER_LEAF_PRINT
 		std::cout << "Output file clover.out opened. All output will go there." << std::endl;
+		#endif
 	}
 
 	clover_barrier();
@@ -192,15 +198,19 @@ initialise(parallel_ &parallel, const std::vector<std::string> &args) {
 	auto runConfig = parseArgs(gpu_devices, args);
 	auto file = runConfig.file;
 	auto selectedDevice = runConfig.device;
-
-	std::cout << "Detected SYCL devices:" << std::endl;
+	#ifdef CLOVER_LEAF_PRINT
+		std::cout << "Detected SYCL devices:" << std::endl;
+	#endif
 	for (size_t i = 0; i < gpu_devices.size(); ++i) printSimple(gpu_devices[i], i);
-	std::cout << "Using SYCL device: "
-	          << selectedDevice.get_info<cl::sycl::info::device::name>()
-	          << "("
-	          << deviceName(selectedDevice.get_info<cl::sycl::info::device::device_type>())
-	          << ")"
-	          << std::endl;
+	
+	#ifdef CLOVER_LEAF_PRINT
+		std::cout << "Using SYCL device: "
+				<< selectedDevice.get_info<cl::sycl::info::device::name>()
+				<< "("
+				<< deviceName(selectedDevice.get_info<cl::sycl::info::device::device_type>())
+				<< ")"
+				<< std::endl;
+	#endif
 
 	std::ifstream g_in;
 	g_in.open(file);
@@ -257,7 +267,6 @@ initialise(parallel_ &parallel, const std::vector<std::string> &args) {
 	}
 
 	g_in.close();
-
 
 	return globals;
 }

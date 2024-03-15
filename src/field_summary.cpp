@@ -195,15 +195,21 @@ void field_summary(global_variables &globals, parallel_ &parallel) {
 					qa_diff = sycl::fabs((100.0 * (ke / 0.307475452287895)) - 100.0);
 				if (globals.config.test_problem == 5)
 					qa_diff = sycl::fabs((100.0 * (ke / 4.85350315783719)) - 100.0);
+				#ifdef CLOVER_LEAF_PRINT
 				std::cout << "Test problem " << globals.config.test_problem << " is within " << qa_diff
 				          << "% of the expected solution" << std::endl;
+				#endif
 				g_out << "Test problem " << globals.config.test_problem << " is within " << qa_diff
 				      << "% of the expected solution" << std::endl;
 				if (qa_diff < 0.001) {
-					std::cout << "This test is considered PASSED" << std::endl;
+					#ifdef CLOVER_LEAF_PRINT
+						std::cout << "This test is considered PASSED" << std::endl;
+					#endif
 					g_out << "This test is considered PASSED" << std::endl;
 				} else {
+					#ifdef CLOVER_LEAF_PRINT
 					std::cout << "This test is considered NOT PASSED" << std::endl;
+					#endif
 					g_out << "This test is considered NOT PASSED" << std::endl;
 				}
 			}

@@ -98,9 +98,11 @@ void timestep(global_variables &globals, parallel_ &parallel) {
 		g_out << " Step " << globals.step << " time " << globals.time << " control " << dt_control
 		      << " timestep  " << globals.dt << " " << globals.jdt << "," << globals.kdt << " x "
 		      << x_pos << " y " << y_pos << std::endl;
+		#ifdef CLOVER_LEAF_PRINT	  
 		std::cout << " Step " << globals.step << " time " << globals.time << " control "
 		          << dt_control << " timestep  " << globals.dt << " " << globals.jdt << ","
 		          << globals.kdt << " x " << x_pos << " y " << y_pos << std::endl;
+		#endif
 	}
 
 	if (small == 1) {

@@ -162,13 +162,19 @@ template <typename T>
 static void execute(synergy::queue& queue, std::string kernel_name, T cgf) {
   try {
     sycl::event e = queue.submit(cgf);
+    const auto startKernExecutionTimePoint =
+          e.get_profiling_info<
+              sycl::info::event_profiling::command_start>();
+    const auto endKernExecutionTimePoint =
+          e.get_profiling_info<
+              sycl::info::event_profiling::command_end>();
     // Take the mpi process rank
     int world_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     // Fine grained energy consumption
-    // std::cout << "kernel_name: " << kernel_name << ", rank: "<< world_rank <<
-    // ", energy_consumption [J]: " << queue.kernel_energy_consumption(e) <<
-    // "\n";
+    std::cerr << "kernel_name: " << kernel_name << ", rank: "<< world_rank <<
+    ", energy_consumption [J]: " << queue.kernel_energy_consumption(e) << ", time [μs]: "<< ((endKernExecutionTimePoint - startKernExecutionTimePoint) * 1e-3) << 
+    std::endl;
 
 #if defined(SYCL_DEBUG) || defined(SYNC_KERNELS)
     queue.wait_and_throw();
