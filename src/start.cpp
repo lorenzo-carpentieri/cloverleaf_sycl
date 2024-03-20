@@ -43,7 +43,7 @@ extern std::ostream g_out;
 
 std::unique_ptr<global_variables> start(parallel_ &parallel,
                                         const global_config &config,
-                                        const cl::sycl::device &device) {
+                                        const synergy::queue &synergy_queue) {
 
 	if (parallel.boss) {
 		g_out << "Setting up initial geometry" << std::endl
@@ -78,7 +78,7 @@ std::unique_ptr<global_variables> start(parallel_ &parallel,
 
 
 	global_variables globals(config,
-	                         synergy::queue(device, handler),
+	                         synergy_queue,
 	                         chunk_type(
 			                         chunkNeighbours,
 			                         parallel.task, 1, 1, x_cells, y_cells,
@@ -87,7 +87,7 @@ std::unique_ptr<global_variables> start(parallel_ &parallel,
 			                         1, config.grid.y_cells,
 			                         config.tiles_per_chunk));
 
-
+	
 	if (DEBUG) std::cout << "Globals configured" << std::endl;
 
 	auto infos = clover_tile_decompose(globals, x_cells, y_cells);
@@ -99,7 +99,9 @@ std::unique_ptr<global_variables> start(parallel_ &parallel,
 
 	// Line 92 start.f90
 	build_field(globals);
-
+	
+	
+	
 	clover_barrier(globals);
 
 	clover_allocate_buffers(globals, parallel); // FIXME remove; basically no-op, moved to ctor

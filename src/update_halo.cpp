@@ -884,16 +884,20 @@ void update_halo_kernel(
 //  @details Invokes the kernels for the internal and external halo cells for
 //  the fields specified.
 void update_halo(global_variables &globals, int fields[NUM_FIELDS], const int depth) {
+	// Moved clover exchange before update tile halo
+	clover_exchange(globals, fields, depth);
 
+	globals.queue.wait();
+	
 	double kernel_time = 0;
 	if (globals.profiler_on) kernel_time = timer();
+	
 	update_tile_halo(globals, fields, depth);
 	if (globals.profiler_on) {
 		globals.profiler.tile_halo_exchange += timer() - kernel_time;
 		kernel_time = timer();
 	}
-
-	clover_exchange(globals, fields, depth);
+	globals.queue.wait();
 
 	if (globals.profiler_on) {
 		globals.profiler.mpi_halo_exchange += timer() - kernel_time;

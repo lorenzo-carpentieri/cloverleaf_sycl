@@ -6,6 +6,9 @@ project(cloverleaf_sycl)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CUDA_TOOLKIT_ROOT_DIR ${CUDA_TOOLKIT_DIR})
+option(ENABLE_MPI_HIDING "Enable MPI frequency change hiding" OFF)
+option(CLOVERLEAF_PRINT "Print the cloverleaf kernel and mpi call" OFF)
+
 
 if (SYCL_RUNTIME)
 
@@ -124,6 +127,16 @@ set(DEBUG_OPTIONS -O2 -fno-omit-frame-pointer ${CXX_EXTRA_FLAGS})
 set(RELEASE_OPTIONS -O3 ${CXX_EXTRA_FLAGS})
 
 target_link_libraries(clover_leaf PUBLIC ${MPI_C_LIB})
+# Add MPI_HIDING freq change option
+if(ENABLE_MPI_HIDING)
+    target_compile_definitions(clover_leaf PUBLIC HIDING=1)
+else()
+    target_compile_definitions(clover_leaf PUBLIC HIDING=0) 
+endif()
+
+if(CLOVERLEAF_PRINT)
+    target_compile_definitions(clover_leaf PUBLIC CLOVER_LEAF_STRUCTURE)
+endif()
 
 target_compile_options(clover_leaf PUBLIC "$<$<CONFIG:RelWithDebInfo>:${RELEASE_OPTIONS}>")
 target_compile_options(clover_leaf PUBLIC "$<$<CONFIG:Release>:${RELEASE_OPTIONS}>")

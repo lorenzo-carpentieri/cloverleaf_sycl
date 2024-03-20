@@ -413,7 +413,11 @@ void clover_exchange(global_variables& globals, int fields[NUM_FIELDS],
         end_pack_index_left_right, 1, 2, request[message_count],
         request[message_count + 1]);
     message_count += 2;
+    // Lorenzo added waitall
+    MPI_Waitall(message_count, request, MPI_STATUS_IGNORE);
   }
+
+
 
   if (globals.chunk.chunk_neighbours[chunk_right] != external_face) {
     // do right exchanges
@@ -429,6 +433,7 @@ void clover_exchange(global_variables& globals, int fields[NUM_FIELDS],
         end_pack_index_left_right, 2, 1, request[message_count],
         request[message_count + 1]);
     message_count += 2;
+    MPI_Waitall(message_count, request, MPI_STATUS_IGNORE);
   }
 
   // make a call to wait / sync
@@ -436,8 +441,6 @@ void clover_exchange(global_variables& globals, int fields[NUM_FIELDS],
    #ifdef CLOVER_LEAF_STRUCTURE
     std::cerr << "MPI_Waitall" << std::endl;
   #endif
-  //TODO: add frequency change
-  MPI_Waitall(message_count, request, MPI_STATUS_IGNORE);
 
   // Copy back to the device
   //	Kokkos::deep_copy(globals.chunk.left_rcv_buffer,
@@ -481,6 +484,8 @@ void clover_exchange(global_variables& globals, int fields[NUM_FIELDS],
         globals.chunk.bottom_rcv_buffer, end_pack_index_bottom_top, 3, 4,
         request[message_count], request[message_count + 1]);
     message_count += 2;
+    MPI_Waitall(message_count, request, MPI_STATUS_IGNORE);
+
   }
 
   if (globals.chunk.chunk_neighbours[chunk_top] != external_face) {
@@ -497,6 +502,8 @@ void clover_exchange(global_variables& globals, int fields[NUM_FIELDS],
         end_pack_index_bottom_top, 4, 3, request[message_count],
         request[message_count + 1]);
     message_count += 2;
+    MPI_Waitall(message_count, request, MPI_STATUS_IGNORE);
+
   }
 
   // need to make a call to wait / sync
@@ -504,7 +511,7 @@ void clover_exchange(global_variables& globals, int fields[NUM_FIELDS],
     std::cerr << "MPI_Waitall" << std::endl;
   #endif
   globals.queue.wait_and_throw();
-  MPI_Waitall(message_count, request, MPI_STATUS_IGNORE);
+  // MPI_Waitall(message_count, request, MPI_STATUS_IGNORE);
 
   // Copy back to the device
   //	Kokkos::deep_copy(globals.chunk.bottom_rcv_buffer,
@@ -657,7 +664,7 @@ void clover_send_recv_message_left(global_variables& globals,
    #ifdef CLOVER_LEAF_STRUCTURE
     std::cerr << "MPI_Isend" << std::endl;
   #endif
-  // TODO: 
+
   MPI_Isend(globals.chunk.left_snd_buffer.access<R>().get_pointer(), total_size,
             MPI_DOUBLE, left_task, tag_send, MPI_COMM_WORLD, &req_send);
 
@@ -668,6 +675,22 @@ void clover_send_recv_message_left(global_variables& globals,
                 globals.chunk.left_rcv_buffer.access<R>().get_pointer())),
             total_size, MPI_DOUBLE, left_task, tag_recv, MPI_COMM_WORLD,
             &req_recv);
+  // TODO: add freq change here
+  // With HIDING ON we overlap the MPI_Isend and MPI_Irecv with the frequency change
+  #if HIDING == 1
+  // -> Added freq. change for first execution of update_halo and exchange kernels  
+  globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
+    cgh.single_task([=]() {
+      // Do nothing
+    });
+  });  // Set frequency
+  #else	
+	globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
+		cgh.single_task([=]() {
+		// Do nothing
+		});
+	}).wait(); 	
+	#endif	
 }
 
 void clover_unpack_left(global_variables& globals, const int fields[NUM_FIELDS],
@@ -919,6 +942,23 @@ void clover_send_recv_message_right(global_variables& globals,
                 globals.chunk.right_rcv_buffer.access<R>().get_pointer())),
             total_size, MPI_DOUBLE, right_task, tag_recv, MPI_COMM_WORLD,
             &req_recv);
+
+    // TODO: add freq change here
+    // With HIDING ON we overlap the MPI_Isend and MPI_Irecv with the frequency change
+    #if HIDING == 1
+    // -> Added freq. change for first execution of update_halo and exchange kernels  
+    globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
+      cgh.single_task([=]() {
+        // Do nothing
+      });
+    });  // Set frequency
+    #else	
+    globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
+      cgh.single_task([=]() {
+      // Do nothing
+      });
+    }).wait(); 	
+    #endif	
 }
 
 void clover_unpack_right(global_variables& globals,
@@ -1169,6 +1209,23 @@ void clover_send_recv_message_top(global_variables& globals,
                 globals.chunk.top_rcv_buffer.access<R>().get_pointer())),
             total_size, MPI_DOUBLE, top_task, tag_recv, MPI_COMM_WORLD,
             &req_recv);
+  // TODO: add freq change here
+  // With HIDING ON we overlap the MPI_Isend and MPI_Irecv with the frequency change
+  #if HIDING == 1
+  // -> Added freq. change for first execution of update_halo and exchange kernels  
+  globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
+    cgh.single_task([=]() {
+      // Do nothing
+    });
+  });  // Set frequency
+  #else	
+	globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
+		cgh.single_task([=]() {
+		// Do nothing
+		});
+	}).wait(); 	
+	#endif	
+  // TODO: change the freq here for the next kernels
 }
 
 void clover_unpack_top(global_variables& globals, const int fields[NUM_FIELDS],
@@ -1418,6 +1475,22 @@ void clover_send_recv_message_bottom(
                 globals.chunk.bottom_rcv_buffer.access<R>().get_pointer())),
             total_size, MPI_DOUBLE, bottom_task, tag_recv, MPI_COMM_WORLD,
             &req_recv);
+              // TODO: add freq change here
+  // With HIDING ON we overlap the MPI_Isend and MPI_Irecv with the frequency change
+  #if HIDING == 1
+  // -> Added freq. change for first execution of update_halo and exchange kernels  
+  globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
+    cgh.single_task([=]() {
+      // Do nothing
+    });
+  });  // Set frequency
+  #else	
+	globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
+		cgh.single_task([=]() {
+		// Do nothing
+		});
+	}).wait(); 	
+	#endif	
 }
 
 void clover_unpack_bottom(global_variables& globals,

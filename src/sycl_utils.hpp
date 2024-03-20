@@ -172,9 +172,9 @@ static void execute(synergy::queue& queue, std::string kernel_name, T cgf) {
     int world_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     // Fine grained energy consumption
-    std::cerr << "kernel_name: " << kernel_name << ", rank: "<< world_rank <<
-    ", energy_consumption [J]: " << queue.kernel_energy_consumption(e) << ", time [μs]: "<< ((endKernExecutionTimePoint - startKernExecutionTimePoint) * 1e-3) << 
-    std::endl;
+    // std::cerr << "kernel_name: " << kernel_name << ", rank: "<< world_rank <<
+    // ", energy_consumption [J]: " << queue.kernel_energy_consumption(e) << ", time [μs]: "<< ((endKernExecutionTimePoint - startKernExecutionTimePoint) * 1e-3) << 
+    // std::endl;
 
 #if defined(SYCL_DEBUG) || defined(SYNC_KERNELS)
     queue.wait_and_throw();

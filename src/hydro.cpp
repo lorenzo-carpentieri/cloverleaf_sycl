@@ -53,7 +53,6 @@ void hydro(global_variables &globals, parallel_ &parallel) {
 
 
 	while (true) {
-
 		double step_time = timer();
 
 		globals.step += 1;
@@ -61,19 +60,19 @@ void hydro(global_variables &globals, parallel_ &parallel) {
 		timestep(globals, parallel);
 		if (DEBUG) globals.dump("dump_" + std::to_string(globals.step) + "_1_timestep.txt");
 
-
+		// Lorenzo after the timestep function the frequency is 1450 and it's good for PdV
 		PdV(globals, true);
 		if (DEBUG) globals.dump("dump_" + std::to_string(globals.step) + "_2_PdV.txt");
 
-
+		// Lorenzo also here the freq 1450 is good for accelerate
 		accelerate(globals);
 		if (DEBUG) globals.dump("dump_" + std::to_string(globals.step) + "_3_accelerate.txt");
 
-
+		// Lorenzo also here the freq 1450 is good for PdV
 		PdV(globals, false);
 		if (DEBUG) globals.dump("dump_" + std::to_string(globals.step) + "_4_PdV.txt");
 
-
+		// Lorenzo also here the freq 1450 is goof for flic_calc
 		flux_calc(globals);
 		if (DEBUG) globals.dump("dump_" + std::to_string(globals.step) + "_5_flux_calc.txt");
 

@@ -89,11 +89,25 @@ int main(int argc, char* argv[]) {
       initialise(parallel, std::vector<std::string>(argv + 1, argv + argc));
   auto end = std::chrono::high_resolution_clock::now();
   auto initialise_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start); 
-  
-  
-  std::cerr << "Node name: " << node_name << ", rank: " << comm_rank
-            << ", local_rank: " << local_comm_rank << ", initialise_time [ms]: " << initialise_time.count() <<std::endl;
-  
+  // With HIDING ON we overlap the MPI_Barrier with the frequency change
+  // #if HIDING == 1
+  // // -> Added freq. change for first execution of ideal_gas  
+  // synergy_queue.submit(0, 1200, [&](sycl::handler& cgh) {
+  //   cgh.single_task([=]() {
+  //     // Do nothing
+  //   });
+  // });  // Set frequency
+  // #else	
+	// synergy_queue.submit(0, 1200, [&](sycl::handler& cgh) {
+	// 	cgh.single_task([=]() {
+	// 	// Do nothing
+	// 	});
+	// }).wait(); 	
+	// #endif	
+  clover_barrier();
+  if(parallel.boss)
+    std::cerr << "initialise_time [ms]: " << initialise_time.count() <<std::endl;
+    
   // std::cout << "Launching hydro" << std::endl;
   start = std::chrono::high_resolution_clock::now();
   hydro(*config, parallel);
@@ -105,19 +119,27 @@ int main(int argc, char* argv[]) {
   end = std::chrono::high_resolution_clock::now();
   auto hydro_time = std::chrono::duration_cast<std::chrono::milliseconds>(end - start); 
   
-  std::cerr << "Node name: " << node_name << ", rank: " << comm_rank
-            << ", local_rank: " << local_comm_rank << ", hydro_time [ms]: " << hydro_time.count() <<std::endl;
+  clover_barrier();
+  if(parallel.boss)
+    std::cerr << "hydro_time [ms]: " << hydro_time.count() <<std::endl;
   if (parallel.boss)
     printf("\n");
-  // clover_barrier();
 
 #ifdef SYNERGY_DEVICE_PROFILING
   auto& q = config->queue;
+  double energy_per_gpu = q.device_energy_consumption();
   std::cerr << "Node name: " << node_name << ", rank: " << comm_rank
             << ", local_rank: " << local_comm_rank
             << ", device_energy_consumption [J]: "
-            << q.device_energy_consumption() << std::endl;
+            << energy_per_gpu << std::endl;
+  double total_energy=0;
+  MPI_Reduce(&energy_per_gpu, &total_energy, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+
+  if(parallel.boss)
+      std::cerr << "Total energy: " << total_energy << std::endl;
+
 #endif
+
   MPI_Finalize();
 
   return EXIT_SUCCESS;

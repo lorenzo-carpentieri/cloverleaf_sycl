@@ -44,7 +44,23 @@ void advection(global_variables &globals) {
 	fields[field_vol_flux_x] = 1;
 	fields[field_vol_flux_y] = 1;
 	update_halo(globals, fields, 2);
-
+	#if HIDING == 1
+  // -> Lorenzo: added freq. change for visosity and exchange kernels
+  globals.queue.submit(0, 1400, [&](sycl::handler& cgh) {
+    cgh.single_task([=]() {
+      // Do nothing
+    });
+  });  // Set frequency
+#else
+  globals.queue
+      .submit(0, 1400,
+              [&](sycl::handler& cgh) {
+                cgh.single_task([=]() {
+                  // Do nothing
+                });
+              })
+      .wait();
+#endif
 	double kernel_time = 0;
 	if (globals.profiler_on) kernel_time = timer();
 	for (int tile = 0; tile < globals.config.tiles_per_chunk; ++tile) {
@@ -64,7 +80,23 @@ void advection(global_variables &globals) {
 
 	if (globals.profiler_on) kernel_time = timer();
 
-
+#if HIDING == 1
+  // -> Lorenzo: added freq. change for visosity and exchange kernels
+  globals.queue.submit(0, 1400, [&](sycl::handler& cgh) {
+    cgh.single_task([=]() {
+      // Do nothing
+    });
+  });  // Set frequency
+#else
+  globals.queue
+      .submit(0, 1400,
+              [&](sycl::handler& cgh) {
+                cgh.single_task([=]() {
+                  // Do nothing
+                });
+              })
+      .wait();
+#endif
 	for (int tile = 0; tile < globals.config.tiles_per_chunk; ++tile) {
 		advec_mom_driver(globals, tile, xvel, direction, sweep_number);
 		advec_mom_driver(globals, tile, yvel, direction, sweep_number);
@@ -94,7 +126,23 @@ void advection(global_variables &globals) {
 	update_halo(globals, fields, 2);
 
 	if (globals.profiler_on) kernel_time = timer();
-
+#if HIDING == 1
+  // -> Lorenzo: added freq. change for visosity and exchange kernels
+  globals.queue.submit(0, 1400, [&](sycl::handler& cgh) {
+    cgh.single_task([=]() {
+      // Do nothing
+    });
+  });  // Set frequency
+#else
+  globals.queue
+      .submit(0, 1400,
+              [&](sycl::handler& cgh) {
+                cgh.single_task([=]() {
+                  // Do nothing
+                });
+              })
+      .wait();
+#endif
 	for (int tile = 0; tile < globals.config.tiles_per_chunk; ++tile) {
 		advec_mom_driver(globals, tile, xvel, direction, sweep_number);
 		advec_mom_driver(globals, tile, yvel, direction, sweep_number);
