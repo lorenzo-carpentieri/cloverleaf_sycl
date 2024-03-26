@@ -24,6 +24,7 @@
 #include <iostream>
 #include <synergy.hpp>
 #include <utility>
+#include <freq_map.h> 
 
 // #define SYCL_DEBUG // enable for debugging SYCL related things, also syncs
 // kernel calls
@@ -156,12 +157,40 @@ static inline void par_ranged(cl::sycl::handler& cgh, const Range2d& range,
                           cl::sycl::id<2>(range.fromX, range.fromY), functor);
 #endif
 }
-
+	// delegates to queue.submit(cgf), handles blocking submission if enable
+template<typename T>
+static void execute(synergy::frequency memory_freq, synergy::frequency core_freq,  synergy::queue&queue, std::string kernel_name, T cgf) {
+		try {
+      #ifdef PER_APP
+      sycl::event e = queue.submit(0, KernelMap::getIntelMax1100FreqMap_PerApp()[kernel_name],cgf);
+      #elif PER_KERNEL
+        sycl::event e = queue.submit(0, KernelMap::getIntelMax1100FreqMap_PerKernel()[kernel_name],cgf);
+      #else
+        sycl::event e = queue.submit(0, 0, cgf);
+      #endif
+			// Take the mpi process rank
+			int world_rank;
+    		MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+			// Fine grained energy consumption
+  			// std::cout << "kernel_name: " << kernel_name << ", rank: "<< world_rank << ", energy_consumption [J]: " << queue.kernel_energy_consumption(e) << "\n";
+			
+#if defined(SYCL_DEBUG) || defined(SYNC_KERNELS)
+			queue.wait_and_throw();
+#endif
+		} catch (cl::sycl::device_error &e) {
+			std::cerr << "[SYCL] Device error: : `" << e.what() << "`" << std::endl;
+			throw e;
+		} catch (cl::sycl::exception &e) {
+			std::cerr << "[SYCL] Exception : `" << e.what() << "`" << std::endl;
+			throw e;
+		}
+	}
 // delegates to queue.submit(cgf), handles blocking submission if enable
 template <typename T>
 static void execute(synergy::queue& queue, std::string kernel_name, T cgf) {
   try {
-    sycl::event e = queue.submit(cgf);
+      sycl::event e = queue.submit(cgf);
+
     const auto startKernExecutionTimePoint =
           e.get_profiling_info<
               sycl::info::event_profiling::command_start>();

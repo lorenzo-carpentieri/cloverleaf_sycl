@@ -6,9 +6,10 @@ project(cloverleaf_sycl)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CUDA_TOOLKIT_ROOT_DIR ${CUDA_TOOLKIT_DIR})
-option(ENABLE_MPI_HIDING "Enable MPI frequency change hiding" OFF)
+option(MPI_HIDING "Enable MPI frequency change hiding" OFF)
 option(CLOVERLEAF_PRINT "Print the cloverleaf kernel and mpi call" OFF)
-
+set(FREQ_SCALING_APPROACH "" CACHE STRING "Select freq. scaling apporach [APP | KERNEL| PHASE]")
+set_property(CACHE  FREQ_SCALING_APPROACH PROPERTY STRINGS "APP" "KERNEL" "PHASE")
 
 if (SYCL_RUNTIME)
 
@@ -128,10 +129,18 @@ set(RELEASE_OPTIONS -O3 ${CXX_EXTRA_FLAGS})
 
 target_link_libraries(clover_leaf PUBLIC ${MPI_C_LIB})
 # Add MPI_HIDING freq change option
-if(ENABLE_MPI_HIDING)
+if(MPI_HIDING)
     target_compile_definitions(clover_leaf PUBLIC HIDING=1)
 else()
     target_compile_definitions(clover_leaf PUBLIC HIDING=0) 
+endif()
+
+if(FREQ_SCALING_APPROACH STREQUAL "APP")
+    target_compile_definitions(clover_leaf PUBLIC PER_APP)
+elseif(FREQ_SCALING_APPROACH STREQUAL "KERNEL")
+    target_compile_definitions(clover_leaf PUBLIC PER_KERNEL)
+else()
+    target_compile_definitions(clover_leaf PUBLIC PER_PHASE)
 endif()
 
 if(CLOVERLEAF_PRINT)

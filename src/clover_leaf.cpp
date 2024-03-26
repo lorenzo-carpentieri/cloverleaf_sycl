@@ -57,6 +57,20 @@ int main(int argc, char* argv[]) {
   int comm_rank = -1;
   MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
 
+  if(comm_rank==0){
+    #ifdef PER_APP
+      std::cerr << "PER_APP" << std::endl;
+    #elif PER_KERNEL
+        std::cerr << "PER_KERNEL" << std::endl;
+    #else
+        #if HIDING == 1
+          std::cerr << "PER_PHASE + HIDING" << std::endl;
+        #else
+          std::cerr << "PER_PHASE + NO_HIDING" << std::endl;
+        #endif
+    #endif
+  }
+
   MPI_Comm local_comm;
   MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, comm_rank,
                       MPI_INFO_NULL, &local_comm);
@@ -137,7 +151,6 @@ int main(int argc, char* argv[]) {
 
   if(parallel.boss)
       std::cerr << "Total energy: " << total_energy << std::endl;
-
 #endif
 
   MPI_Finalize();

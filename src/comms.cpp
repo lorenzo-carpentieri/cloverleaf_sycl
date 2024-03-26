@@ -677,20 +677,22 @@ void clover_send_recv_message_left(global_variables& globals,
             &req_recv);
   // TODO: add freq change here
   // With HIDING ON we overlap the MPI_Isend and MPI_Irecv with the frequency change
-  #if HIDING == 1
-  // -> Added freq. change for first execution of update_halo and exchange kernels  
-  globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
-    cgh.single_task([=]() {
+#ifdef PER_PHASE
+    #if HIDING == 1
+    // -> Added freq. change for first execution of update_halo and exchange kernels  
+    globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
+      cgh.single_task([=]() {
+        // Do nothing
+      });
+    });  // Set frequency
+    #else	
+    globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
+      cgh.single_task([=]() {
       // Do nothing
-    });
-  });  // Set frequency
-  #else	
-	globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
-		cgh.single_task([=]() {
-		// Do nothing
-		});
-	}).wait(); 	
-	#endif	
+      });
+    }).wait(); 	
+    #endif	
+#endif
 }
 
 void clover_unpack_left(global_variables& globals, const int fields[NUM_FIELDS],
@@ -945,20 +947,22 @@ void clover_send_recv_message_right(global_variables& globals,
 
     // TODO: add freq change here
     // With HIDING ON we overlap the MPI_Isend and MPI_Irecv with the frequency change
-    #if HIDING == 1
-    // -> Added freq. change for first execution of update_halo and exchange kernels  
-    globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
-      cgh.single_task([=]() {
+    #ifdef PER_PHASE
+      #if HIDING == 1
+      // -> Added freq. change for first execution of update_halo and exchange kernels  
+      globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
+        cgh.single_task([=]() {
+          // Do nothing
+        });
+      });  // Set frequency
+      #else	
+      globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
+        cgh.single_task([=]() {
         // Do nothing
-      });
-    });  // Set frequency
-    #else	
-    globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
-      cgh.single_task([=]() {
-      // Do nothing
-      });
-    }).wait(); 	
-    #endif	
+        });
+      }).wait(); 	
+      #endif	
+      #endif
 }
 
 void clover_unpack_right(global_variables& globals,
@@ -1211,6 +1215,8 @@ void clover_send_recv_message_top(global_variables& globals,
             &req_recv);
   // TODO: add freq change here
   // With HIDING ON we overlap the MPI_Isend and MPI_Irecv with the frequency change
+#ifdef PER_PHASE
+
   #if HIDING == 1
   // -> Added freq. change for first execution of update_halo and exchange kernels  
   globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
@@ -1225,6 +1231,7 @@ void clover_send_recv_message_top(global_variables& globals,
 		});
 	}).wait(); 	
 	#endif	
+#endif
   // TODO: change the freq here for the next kernels
 }
 
@@ -1477,6 +1484,7 @@ void clover_send_recv_message_bottom(
             &req_recv);
               // TODO: add freq change here
   // With HIDING ON we overlap the MPI_Isend and MPI_Irecv with the frequency change
+#ifdef PER_PHASE
   #if HIDING == 1
   // -> Added freq. change for first execution of update_halo and exchange kernels  
   globals.queue.submit(0, 300, [&](sycl::handler& cgh) {
@@ -1491,6 +1499,7 @@ void clover_send_recv_message_bottom(
 		});
 	}).wait(); 	
 	#endif	
+#endif
 }
 
 void clover_unpack_bottom(global_variables& globals,

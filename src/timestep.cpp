@@ -63,6 +63,7 @@ void timestep(global_variables& globals, parallel_& parallel) {
 
   if (globals.profiler_on)
     kernel_time = timer();
+#ifdef PER_PHASE
 #if HIDING == 1
   // -> Lorenzo: added freq. change for visosity and exchange kernels
   globals.queue.submit(0, 1450, [&](sycl::handler& cgh) {
@@ -79,6 +80,7 @@ void timestep(global_variables& globals, parallel_& parallel) {
                 });
               })
       .wait();
+#endif
 #endif
 
   viscosity(globals);
@@ -97,7 +99,7 @@ void timestep(global_variables& globals, parallel_& parallel) {
   double dtlp;
   double x_pos, y_pos, xl_pos, yl_pos;
   std::string dt_control, dtl_control;
-  
+#ifdef PER_PHASE
 #if HIDING == 1
   // -> Lorenzo: added freq. change for visosity and exchange kernels
   globals.queue.submit(0, 1450, [&](sycl::handler& cgh) {
@@ -114,6 +116,7 @@ void timestep(global_variables& globals, parallel_& parallel) {
                 });
               })
       .wait();
+#endif
 #endif
 
   for (int tile = 0; tile < globals.config.tiles_per_chunk; ++tile) {

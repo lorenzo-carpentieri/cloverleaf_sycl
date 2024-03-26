@@ -198,6 +198,8 @@ void PdV(global_variables& globals, bool predict) {
     fields[field_pressure] = 1;
     update_halo(globals, fields, 1);
   }
+
+#ifdef PER_PHASE
 #if HIDING == 1
   // -> Lorenzo: added freq. change for visosity and exchange kernels
   globals.queue.submit(0, 1450, [&](sycl::handler& cgh) {
@@ -215,6 +217,8 @@ void PdV(global_variables& globals, bool predict) {
               })
       .wait();
 #endif
+#endif
+
   if (predict) {
     if (globals.profiler_on)
       kernel_time = timer();

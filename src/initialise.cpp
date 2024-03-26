@@ -294,6 +294,7 @@ std::unique_ptr<global_variables> initialise(
   };
 
   synergy::queue synergy_queue(selectedDevice, handler);
+#ifdef PER_PHASE
   // With HIDING ON we overlap the MPI_Barrier with the frequency change
   #if HIDING == 1
   // -> Added freq. change for build_kernel and also inti and generate chunk 
@@ -309,6 +310,7 @@ std::unique_ptr<global_variables> initialise(
 		});
 	}).wait(); 	
 	#endif	
+#endif
 
   auto globals = start(parallel, config, synergy_queue);
 
