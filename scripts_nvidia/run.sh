@@ -7,7 +7,7 @@ NUM_RUNS=$3
 # create the path to build directory
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 BUILD_DIR=$SCRIPT_DIR/../build
-LOG_DIR=logs_all_${NUM_RUNS}runs
+LOG_DIR=logs_all_${NUM_GPUS}gpus_${NUM_NODES}nodes_${NUM_RUNS}runs
 INPUT_FILE_CLOVERLEAF="clover_bm8_short.in"
 
 if [ ! -d "$SCRIPT_DIR/../${LOG_DIR}" ]; then
