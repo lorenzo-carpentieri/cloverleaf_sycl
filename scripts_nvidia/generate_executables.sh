@@ -1,12 +1,12 @@
+
 CXX_COMPILER=$1
-# num of runs
-NUM_RUNS=1
 # create the path to build directory
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 BUILD_DIR=$SCRIPT_DIR/../build
-LOG_DIR=logs_all_${NUM_RUNS}runs
+LOG_DIR=logs_all_${NUM_GPUS}gpus_${NUM_NODES}nodes_${NUM_RUNS}runs
 INPUT_FILE_CLOVERLEAF="clover_bm8_short.in"
 EXECUTABLE_DIR="executables"
+
 if [ ! -d "$SCRIPT_DIR/../${LOG_DIR}" ]; then
     # Create the directory
     mkdir -p "$SCRIPT_DIR/../${LOG_DIR}"
@@ -26,21 +26,18 @@ else
     rm -rf $SCRIPT_DIR/../${EXECUTABLE_DIR}/*
 fi
 
-
-
 ## APP
 rm -rf $BUILD_DIR/*
 cd $BUILD_DIR
 ${SCRIPT_DIR}/compile.sh APP 0 $CXX_COMPILER
 make -j 
-
 mv ./clover_leaf ../${EXECUTABLE_DIR}/clover_leaf_app
 
 # for ((i=0; i<$NUM_RUNS;i++));
 # do
 #     echo Run $i 
-#     mpirun -n 4 ./clover_leaf  --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_per_app.log
-#     intel_gpu_frequency -d
+#     mpirun -n ${NUM_GPUS} ./clover_leaf  --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_per_app.log
+#     nvidia-smi -ac $memfreq,$corefreq 
 # done
 
 ## KERNEL
@@ -53,8 +50,9 @@ mv ./clover_leaf ../${EXECUTABLE_DIR}/clover_leaf_per_kernel
 # for ((i=0; i<$NUM_RUNS;i++));
 # do
 #     echo Run $i 
-#     mpirun -n 4 ./clover_leaf --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_per_kernel.log
-#     intel_gpu_frequency -d
+#     mpirun -n ${NUM_GPUS} ./clover_leaf --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_per_kernel.log
+#     nvidia-smi -gc
+#     nvidia-smi -ac
 # done
 
 
@@ -68,8 +66,9 @@ mv ./clover_leaf ../${EXECUTABLE_DIR}/clover_leaf_phase_no_hiding
 # for ((i=0; i<$NUM_RUNS;i++));
 # do
 #     echo Run $i 
-#     mpirun -n 4 ./clover_leaf  --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_no_hiding.log
-#     intel_gpu_frequency -d
+#     mpirun -n ${NUM_GPUS} ./clover_leaf  --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_no_hiding.log
+#     nvidia-smi -gc
+#     nvidia-smi -ac
 # done
 
 ## HIDING
@@ -82,8 +81,9 @@ mv ./clover_leaf ../${EXECUTABLE_DIR}/clover_leaf_phase_hiding
 # for ((i=0; i<$NUM_RUNS;i++));
 # do
 #     echo Run $i 
-#     mpirun -n 4 ./clover_leaf  --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_hiding.log
-#     intel_gpu_frequency -d
+#     mpirun -n ${NUM_GPUS} ./clover_leaf  --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_hiding.log
+#     nvidia-smi -gc
+#     nvidia-smi -ac
 # done
 
 
