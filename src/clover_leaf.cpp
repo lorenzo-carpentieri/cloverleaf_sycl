@@ -69,6 +69,17 @@ int main(int argc, char* argv[]) {
           std::cerr << "PER_PHASE + NO_HIDING" << std::endl;
         #endif
     #endif
+
+
+#ifdef NVIDIA
+    std::cerr<< "NVIDIA" << std::endl;
+ 
+#elif INTEL
+    std::cerr<< "Intel" << std::endl;
+
+#else
+  std::cerr<< "AMD" << std::endl;
+#endif
   }
 
   MPI_Comm local_comm;

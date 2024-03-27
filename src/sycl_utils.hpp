@@ -26,7 +26,7 @@
 #include <utility>
 #include <freq_map.h> 
 
-#if VENDOR == Intel  
+#ifdef INTEL
   #ifdef PER_APP
     #define FreqMap KernelMap::getIntelMax1100FreqMap_PerApp()   
   #elif PER_KERNEL
@@ -34,7 +34,7 @@
   #else
     #define FreqMap KernelMap::getIntelMax1100FreqMap_PerPhase()   
   #endif
-#elif VENDOR == NVIDIA
+#elif NVIDIA
    #ifdef PER_APP
     #define FreqMap KernelMap::getNvidiaFreqMap_PerApp()   
   #elif PER_KERNEL
