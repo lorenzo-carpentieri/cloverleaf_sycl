@@ -4,6 +4,7 @@
 NUM_GPUS=(2 4 8 16)
 NUM_NODES=(1 1 2 4)
 NUM_RUNS=1
+CXX_COMPILER=$1
 for ((i=0; i<${#numbers[@]}; i++)); do
-    ./run.sh "${NUM_GPUS[i]}" "${NUM_NODES[i]}" ${NUM_RUNS}
+    ./run.sh "${NUM_GPUS[i]}" "${NUM_NODES[i]}" ${NUM_RUNS} ${CXX_COMPILER}
 done

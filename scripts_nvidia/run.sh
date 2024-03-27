@@ -4,6 +4,7 @@ NUM_GPUS=$1
 NUM_NODES=$2
 # num of runs
 NUM_RUNS=$3
+CXX_COMPILER=$4
 # create the path to build directory
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 BUILD_DIR=$SCRIPT_DIR/../build
@@ -26,7 +27,7 @@ corefreq=0
 ## APP
 rm -rf $BUILD_DIR/*
 cd $BUILD_DIR
-${SCRIPT_DIR}/compile.sh APP 0
+${SCRIPT_DIR}/compile.sh APP 0 $CXX_COMPILER
 make -j 
 
 for ((i=0; i<$NUM_RUNS;i++));
@@ -39,7 +40,7 @@ done
 ## KERNEL
 rm -rf $BUILD_DIR/*
 cd $BUILD_DIR
-${SCRIPT_DIR}/compile.sh KERNEL 0
+${SCRIPT_DIR}/compile.sh KERNEL 0 $CXX_COMPILER
 make -j 
 for ((i=0; i<$NUM_RUNS;i++));
 do
@@ -53,7 +54,7 @@ done
 ## NO_HIDING
 rm -rf $BUILD_DIR/*
 cd $BUILD_DIR
-${SCRIPT_DIR}/compile.sh PHASE 0
+${SCRIPT_DIR}/compile.sh PHASE 0 $CXX_COMPILER
 make -j 
 for ((i=0; i<$NUM_RUNS;i++));
 do
@@ -66,7 +67,7 @@ done
 ## HIDING
 rm -rf $BUILD_DIR/*
 cd $BUILD_DIR
-${SCRIPT_DIR}/compile.sh PHASE 1
+${SCRIPT_DIR}/compile.sh PHASE 1 $CXX_COMPILER
 make -j 
 for ((i=0; i<$NUM_RUNS;i++));
 do

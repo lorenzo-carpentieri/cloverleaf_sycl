@@ -1,3 +1,4 @@
+CXX_COMPILER=$1
 # num of runs
 NUM_RUNS=1
 # create the path to build directory
@@ -19,7 +20,7 @@ fi
 ## APP
 rm -rf $BUILD_DIR/*
 cd $BUILD_DIR
-${SCRIPT_DIR}/compile.sh APP 0
+${SCRIPT_DIR}/compile.sh APP 0 $CXX_COMPILER
 make -j 
 
 for ((i=0; i<$NUM_RUNS;i++));
@@ -32,7 +33,7 @@ done
 ## KERNEL
 rm -rf $BUILD_DIR/*
 cd $BUILD_DIR
-${SCRIPT_DIR}/compile.sh KERNEL 0
+${SCRIPT_DIR}/compile.sh KERNEL 0 $CXX_COMPILER
 make -j 
 for ((i=0; i<$NUM_RUNS;i++));
 do
@@ -45,7 +46,7 @@ done
 ## NO_HIDING
 rm -rf $BUILD_DIR/*
 cd $BUILD_DIR
-${SCRIPT_DIR}/compile.sh PHASE 0
+${SCRIPT_DIR}/compile.sh PHASE 0 $CXX_COMPILER
 make -j 
 for ((i=0; i<$NUM_RUNS;i++));
 do
@@ -57,7 +58,7 @@ done
 ## HIDING
 rm -rf $BUILD_DIR/*
 cd $BUILD_DIR
-${SCRIPT_DIR}/compile.sh PHASE 1
+${SCRIPT_DIR}/compile.sh PHASE 1 $CXX_COMPILER
 make -j 
 for ((i=0; i<$NUM_RUNS;i++));
 do

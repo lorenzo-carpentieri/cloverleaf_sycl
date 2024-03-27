@@ -26,6 +26,32 @@
 #include <utility>
 #include <freq_map.h> 
 
+#if VENDOR == Intel  
+  #ifdef PER_APP
+    #define FreqMap KernelMap::getIntelMax1100FreqMap_PerApp()   
+  #elif PER_KERNEL
+    #define FreqMap KernelMap::getIntelMax1100FreqMap_PerKernel()   
+  #else
+    #define FreqMap KernelMap::getIntelMax1100FreqMap_PerPhase()   
+  #endif
+#elif VENDOR == NVIDIA
+   #ifdef PER_APP
+    #define FreqMap KernelMap::getNvidiaFreqMap_PerApp()   
+  #elif PER_KERNEL
+    #define FreqMap KernelMap::getNvidiaFreqMap_PerKernel()   
+  #else
+    #define FreqMap KernelMap::getNvidiaFreqMap_PerPhase()   
+  #endif
+#else
+  #ifdef PER_APP
+    #define FreqMap KernelMap::getAMDFreqMap_PerApp()   
+  #elif PER_KERNEL
+    #define FreqMap KernelMap::getAmdFreqMap_PerKernel()   
+  #else
+    #define FreqMap KernelMap::getAmdFreqMap_PerPhase()   
+  #endif
+#endif
+
 // #define SYCL_DEBUG // enable for debugging SYCL related things, also syncs
 // kernel calls
 //  #define SYNC_KERNELS // enable for fully synchronous (e.g
@@ -162,9 +188,9 @@ template<typename T>
 static void execute(synergy::frequency memory_freq, synergy::frequency core_freq,  synergy::queue&queue, std::string kernel_name, T cgf) {
 		try {
       #ifdef PER_APP
-      sycl::event e = queue.submit(0, KernelMap::getIntelMax1100FreqMap_PerApp()[kernel_name],cgf);
+      sycl::event e = queue.submit(0, FreqMap[kernel_name],cgf);
       #elif PER_KERNEL
-        sycl::event e = queue.submit(0, KernelMap::getIntelMax1100FreqMap_PerKernel()[kernel_name],cgf);
+        sycl::event e = queue.submit(0, FreqMap[kernel_name],cgf);
       #else
         sycl::event e = queue.submit(0, 0, cgf);
       #endif

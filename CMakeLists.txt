@@ -11,6 +11,11 @@ option(CLOVERLEAF_PRINT "Print the cloverleaf kernel and mpi call" OFF)
 set(FREQ_SCALING_APPROACH "" CACHE STRING "Select freq. scaling apporach [APP | KERNEL| PHASE]")
 set_property(CACHE  FREQ_SCALING_APPROACH PROPERTY STRINGS "APP" "KERNEL" "PHASE")
 
+set(HARDWARE_VENDOR "" CACHE STRING "Select hardware vendor [NVIDIA | AMD| PHASE]")
+set_property(CACHE  HARDWARE_VENDOR PROPERTY STRINGS "NVIDIA" "AMD" "Intel")
+
+
+
 if (SYCL_RUNTIME)
 
     list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
@@ -142,6 +147,8 @@ elseif(FREQ_SCALING_APPROACH STREQUAL "KERNEL")
 else()
     target_compile_definitions(clover_leaf PUBLIC PER_PHASE)
 endif()
+
+target_compile_definitions(clover_leaf PUBLIC VEDNOR=${HARDWARE_VENDOR})
 
 if(CLOVERLEAF_PRINT)
     target_compile_definitions(clover_leaf PUBLIC CLOVER_LEAF_STRUCTURE)
