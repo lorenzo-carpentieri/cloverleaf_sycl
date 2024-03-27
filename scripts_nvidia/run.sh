@@ -1,5 +1,9 @@
+
+# Specify the number of GPUs and the number of nodes  and num of runs for each benchmark
+NUM_GPUS=$1
+NUM_NODES=$2
 # num of runs
-NUM_RUNS=1
+NUM_RUNS=$3
 # create the path to build directory
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 BUILD_DIR=$SCRIPT_DIR/../build
@@ -28,7 +32,7 @@ make -j
 for ((i=0; i<$NUM_RUNS;i++));
 do
     echo Run $i 
-    mpirun -n 4 ./clover_leaf  --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_per_app.log
+    mpirun -n ${NUM_GPUS} ./clover_leaf  --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_per_app.log
     nvidia-smi -ac $memfreq,$corefreq 
 done
 
@@ -40,7 +44,7 @@ make -j
 for ((i=0; i<$NUM_RUNS;i++));
 do
     echo Run $i 
-    mpirun -n 4 ./clover_leaf --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_per_kernel.log
+    mpirun -n ${NUM_GPUS} ./clover_leaf --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_per_kernel.log
     nvidia-smi -gc
     nvidia-smi -ac
 done
@@ -54,7 +58,7 @@ make -j
 for ((i=0; i<$NUM_RUNS;i++));
 do
     echo Run $i 
-    mpirun -n 4 ./clover_leaf  --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_no_hiding.log
+    mpirun -n ${NUM_GPUS} ./clover_leaf  --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_no_hiding.log
     nvidia-smi -gc
     nvidia-smi -ac
 done
@@ -67,7 +71,7 @@ make -j
 for ((i=0; i<$NUM_RUNS;i++));
 do
     echo Run $i 
-    mpirun -n 4 ./clover_leaf  --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_hiding.log
+    mpirun -n ${NUM_GPUS} ./clover_leaf  --file ../input_file/${INPUT_FILE_CLOVERLEAF} 2>> ../${LOG_DIR}/clover_leaf_hiding.log
     nvidia-smi -gc
     nvidia-smi -ac
 done
