@@ -31,7 +31,7 @@ rm -rf $BUILD_DIR/*
 cd $BUILD_DIR
 ${SCRIPT_DIR}/compile.sh APP 0 $CXX_COMPILER
 make -j 
-mv ./clover_leaf ../${EXECUTABLE_DIR}/clover_leaf_app
+mv ./clover_leaf ../${EXECUTABLE_DIR}/clover_leaf_per_app
 
 # for ((i=0; i<$NUM_RUNS;i++));
 # do
@@ -61,7 +61,7 @@ rm -rf $BUILD_DIR/*
 cd $BUILD_DIR
 ${SCRIPT_DIR}/compile.sh PHASE 0 $CXX_COMPILER
 make -j 
-mv ./clover_leaf ../${EXECUTABLE_DIR}/clover_leaf_phase_no_hiding
+mv ./clover_leaf ../${EXECUTABLE_DIR}/clover_leaf_per_phase_no_hiding
 
 # for ((i=0; i<$NUM_RUNS;i++));
 # do
@@ -76,7 +76,7 @@ rm -rf $BUILD_DIR/*
 cd $BUILD_DIR
 ${SCRIPT_DIR}/compile.sh PHASE 1 $CXX_COMPILER
 make -j 
-mv ./clover_leaf ../${EXECUTABLE_DIR}/clover_leaf_phase_hiding
+mv ./clover_leaf ../${EXECUTABLE_DIR}/clover_leaf_per_phase_hiding
 
 # for ((i=0; i<$NUM_RUNS;i++));
 # do

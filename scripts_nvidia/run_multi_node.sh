@@ -5,7 +5,7 @@ NUM_NODES=(1 1 2 4)
 NUM_GPUS=(2 4 8 16)
 PATH_TO_CLOVERLEAF_REPO=$1
 NUM_RUNS=$2
-EXECUTABLES=("clover_leaf_app" "clover_leaf_per_kernel" "clover_leaf_phase_hiding"  "clover_leaf_phase_no_hiding")
+EXECUTABLES=("clover_leaf_per_app" "clover_leaf_per_kernel" "clover_leaf_per_phase_hiding"  "clover_leaf_per_phase_no_hiding")
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 
 # ./generate_executables.sh
