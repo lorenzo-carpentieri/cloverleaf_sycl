@@ -13,7 +13,7 @@ SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 for ((i=0; i<${NUM_RUNS}; i++)); do
     for ((i=0; i<${#NUM_NODES[@]}; i++)); do
         for exe in "${EXECUTABLES[@]}"; do
-            ${SCRIPT_DIR}/slurm_run.sh "${NUM_GPUS[i]}" "${NUM_NODES[i]}"  ${exe} ${PATH_TO_CLOVERLEAF_REPO} 
+            ${SCRIPT_DIR}/slurm_run.sh "${NUM_GPUS[i]}" "${NUM_NODES[i]}"  ${exe} ${PATH_TO_CLOVERLEAF_REPO} ${NUM_RUNS}
         done
     done
 done
