@@ -36,11 +36,11 @@
   #endif
 #elif NVIDIA
    #ifdef PER_APP
-    #define FreqMap KernelMap::getNvidiaFreqMap_PerApp()   
+    #define FreqMap KernelMap::getNvidiaFreqMapPerApp()   
   #elif PER_KERNEL
-    #define FreqMap KernelMap::getNvidiaFreqMap_PerKernel()   
+    #define FreqMap KernelMap::getNvidiaFreqMapPerKernel()   
   #else
-    #define FreqMap KernelMap::getNvidiaFreqMap_PerPhase()   
+    #define FreqMap KernelMap::getNvidiaFreqMapPerPhase()   
   #endif
 #else
   #ifdef PER_APP
